@@ -1,3 +1,3 @@
-final loginSuccessful = 'Login successful';
+final okMessage = 'Ok';
 
 final genericErrMessage = 'Something went wrong';

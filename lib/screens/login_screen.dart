@@ -52,61 +52,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: TextStyle(fontSize: 35, color: Colors.white),
                   ),
                 ),
-                Container(
-                  padding: EdgeInsets.only(top: 10, bottom: 10),
-                  child: TextField(
-                    style: TextStyle(color: Colors.white, fontSize: 15),
-                    textInputAction: TextInputAction.none,
-                    keyboardType: TextInputType.name,
-                    decoration: _inputDecoration("Email"),
-                    onChanged: (String value) {
-                      this.email = value;
-                    },
-                    controller: fieldText,
-                  ),
-                ),
+                _emailInput(),
                 _separator(),
-                TextField(
-                  style: TextStyle(color: Colors.white, fontSize: 15),
-                  obscureText: true,
-                  autocorrect: false,
-                  enableSuggestions: false,
-                  keyboardType: TextInputType.visiblePassword,
-                  decoration: _inputDecoration("Password"),
-                  onChanged: (String value) {
-                    this.password = value;
-                  },
-                ),
-                GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    alignment: Alignment.centerRight,
-                    margin: EdgeInsets.only(top: 25, right: 5),
-                    child: Text(
-                      'Forgot Password?',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
-                ),
+                _passwordInput(),
+                _forgotPswLabel(),
                 _separator(),
                 _loginBtn(),
-                GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    alignment: Alignment.bottomCenter,
-                    margin: EdgeInsets.only(top: 25, right: 5),
-                    child: Text(
-                      'Sign-up',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
-                ),
+                _signUpLabel(),
               ],
             ),
           ),
@@ -131,9 +83,69 @@ class _LoginScreenState extends State<LoginScreen> {
             ));
   }
 
-  _separator() {
-    return SizedBox(
-      height: 25,
+  _emailInput() {
+    return Container(
+      padding: EdgeInsets.only(top: 10, bottom: 10),
+      child: TextField(
+        style: TextStyle(color: Colors.white, fontSize: 15),
+        textInputAction: TextInputAction.none,
+        keyboardType: TextInputType.emailAddress,
+        decoration: _inputDecoration("Email"),
+        onChanged: (String value) {
+          this.email = value;
+        },
+        controller: fieldText,
+      ),
+    );
+  }
+
+  _passwordInput() {
+    return TextField(
+      style: TextStyle(color: Colors.white, fontSize: 15),
+      obscureText: true,
+      autocorrect: false,
+      enableSuggestions: false,
+      keyboardType: TextInputType.visiblePassword,
+      decoration: _inputDecoration("Password"),
+      onChanged: (String value) {
+        this.password = value;
+      },
+    );
+  }
+
+  _forgotPswLabel() {
+    return GestureDetector(
+      onTap: () {},
+      child: Container(
+        alignment: Alignment.centerRight,
+        margin: EdgeInsets.only(top: 25, right: 5),
+        child: Text(
+          'Forgot Password?',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 15,
+          ),
+        ),
+      ),
+    );
+  }
+
+  _signUpLabel() {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, '/signup');
+      },
+      child: Container(
+        alignment: Alignment.bottomCenter,
+        margin: EdgeInsets.only(top: 25, right: 5),
+        child: Text(
+          'Sign-up',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 15,
+          ),
+        ),
+      ),
     );
   }
 
@@ -157,7 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
           }
           String result = await auth.login(this.email, this.password);
 
-          if (result != loginSuccessful) {
+          if (result != okMessage) {
             _showMaterialDialog(result);
           } else {
             Navigator.pushNamed(context, '/home');
@@ -176,5 +188,11 @@ class _LoginScreenState extends State<LoginScreen> {
             borderRadius: BorderRadius.all(Radius.circular(10))),
         labelStyle: TextStyle(color: Colors.white),
         labelText: labelText);
+  }
+
+  _separator() {
+    return SizedBox(
+      height: 25,
+    );
   }
 }

@@ -1,12 +1,10 @@
 import 'dart:convert';
-import 'package:flutter_config/flutter_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:wirebo/storage/keyvalue_store.dart' as keyValueStore;
+import 'package:global_configuration/global_configuration.dart';
 
 final httpOkStatus = 200;
 final httpUnauthorizedStatus = 401;
-
-final apiUrl = FlutterConfig.get('API_URL');
 
 class HttpResponse {
   bool ok;
@@ -16,6 +14,8 @@ class HttpResponse {
 }
 
 Future<dynamic> doGet(String endpoint) async {
+  final apiUrl = GlobalConfiguration().getValue("apiUrl");
+
   final response = await http.get('$apiUrl/$endpoint');
 
   if (response.statusCode == httpOkStatus) {
@@ -28,6 +28,7 @@ Future<dynamic> doGet(String endpoint) async {
 
 Future<HttpResponse> doPost(dynamic body, String endpoint) async {
   try {
+    final apiUrl = GlobalConfiguration().getValue("apiUrl");
     final http.Response response = await http.post(
       '$apiUrl/$endpoint',
       headers: await _getHeaders(),

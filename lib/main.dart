@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_config/flutter_config.dart';
 import 'package:wirebo/screens/home_screen.dart';
 import 'package:wirebo/screens/login_screen.dart';
+import 'package:wirebo/screens/register_screen.dart';
+import 'package:global_configuration/global_configuration.dart';
 
-void main() async {
+Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await FlutterConfig.loadEnvVariables();
+  await GlobalConfiguration().loadFromAsset("config.json");
 
   runApp(MyApp());
 }
@@ -19,7 +20,8 @@ class MyApp extends StatelessWidget {
         theme: _classTheme(),
         routes: {
           '/': (BuildContext context) => LoginScreen(),
-          '/home': (BuildContext context) => HomeScreen()
+          '/home': (BuildContext context) => HomeScreen(),
+          '/signup': (BuildContext context) => RegisterScreen()
         });
   }
 

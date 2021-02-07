@@ -10,6 +10,8 @@
 .svn/
 .env
 
+assets/cfg/config.json
+
 # IntelliJ related
 *.iml
 *.ipr

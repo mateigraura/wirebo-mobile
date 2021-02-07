@@ -1,10 +1,10 @@
 import 'package:wirebo/utils/constants.dart';
-import 'package:wirebo/http/base_http.dart' as baseHttp;
+import 'package:wirebo/http/base_http.dart';
 import 'package:wirebo/storage/keyvalue_store.dart' as keyValueStore;
 
 Future<String> login(String email, String password) async {
   try {
-    baseHttp.HttpResponse response = await baseHttp.doPost(
+    HttpResponse response = await doPost(
         <String, String>{'email': email, 'password': password}, 'login');
 
     if (!response.ok) {
@@ -13,7 +13,21 @@ Future<String> login(String email, String password) async {
 
     await keyValueStore.write("authToken", response.payload['token']);
 
-    return loginSuccessful;
+    return okMessage;
+  } catch (e) {
+    return genericErrMessage;
+  }
+}
+
+Future<String> register(Map<String, String> payload) async {
+  try {
+    HttpResponse response = await doPost(payload, 'register');
+
+    if (!response.ok) {
+      return response.payload['message'];
+    }
+
+    return okMessage;
   } catch (e) {
     return genericErrMessage;
   }
