@@ -6,6 +6,8 @@ import 'package:global_configuration/global_configuration.dart';
 final httpOkStatus = 200;
 final httpUnauthorizedStatus = 401;
 
+String apiUrl() => GlobalConfiguration().getValue('apiUrl');
+
 class HttpResponse {
   bool ok;
   dynamic payload;
@@ -13,30 +15,70 @@ class HttpResponse {
   HttpResponse({this.ok, this.payload});
 }
 
-Future<dynamic> doGet(String endpoint) async {
-  final apiUrl = GlobalConfiguration().getValue("apiUrl");
+enum RequestType { Get, Post }
 
-  final response = await http.get('$apiUrl/$endpoint');
+Future<HttpResponse> doGet(String endpoint) async {
+  try {
+    final url = '${apiUrl()}/$endpoint';
 
-  if (response.statusCode == httpOkStatus) {
-    return jsonDecode(response.body);
+    final response = await http.get(url);
+
+    final payload = jsonDecode(response.body);
+
+    if (response.statusCode == httpOkStatus) {
+      return new HttpResponse(ok: true, payload: payload);
+    }
+    if (response.statusCode == httpUnauthorizedStatus) {
+      return await _retryRequest(url, RequestType.Get);
+    }
+
+    return new HttpResponse(ok: false, payload: payload);
+  } catch (e) {
+    throw e;
   }
-  if (response.statusCode == httpUnauthorizedStatus) {}
-
-  throw Exception(jsonDecode(response.body));
 }
 
 Future<HttpResponse> doPost(dynamic body, String endpoint) async {
   try {
-    final apiUrl = GlobalConfiguration().getValue("apiUrl");
-    final http.Response response = await http.post(
-      '$apiUrl/$endpoint',
-      headers: await _getHeaders(),
-      body: jsonEncode(body),
-    );
+    final url = '${apiUrl()}/$endpoint';
+    final encodedBody = jsonEncode(body);
+    final headers = await _getHeaders();
+
+    final response = await http.post(url, headers: headers, body: encodedBody);
+
     final payload = jsonDecode(response.body);
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == httpOkStatus) {
+      return new HttpResponse(ok: true, payload: payload);
+    }
+
+    if (response.statusCode == httpUnauthorizedStatus) {
+      return await _retryRequest(url, RequestType.Post, body: encodedBody);
+    }
+
+    return new HttpResponse(ok: false, payload: payload);
+  } catch (e) {
+    throw e;
+  }
+}
+
+Future<HttpResponse> _retryRequest(String url, type, {dynamic body}) async {
+  try {
+    final token = await _refreshToken();
+    final headers = await _getHeaders(token);
+
+    dynamic response;
+    if (type == RequestType.Get) {
+      response = await http.get(url);
+    }
+
+    if (type == RequestType.Post) {
+      response = await http.post(url, headers: headers, body: body);
+    }
+
+    final payload = jsonDecode(response.body);
+
+    if (response.statusCode == httpOkStatus) {
       return new HttpResponse(ok: true, payload: payload);
     }
 
@@ -46,10 +88,31 @@ Future<HttpResponse> doPost(dynamic body, String endpoint) async {
   }
 }
 
-Future<Map<String, String>> _getHeaders() async {
-  String token;
+Future<String> _refreshToken() async {
   try {
-    token = await keyValueStore.read('authToken');
+    final response = await http.post('${apiUrl()}/refresh',
+        body: <String, String>{'token': await keyValueStore.read('authToken')});
+
+    final payload = jsonDecode(response.body);
+
+    if (response.statusCode == httpOkStatus) {
+      final token = payload['token'];
+      await keyValueStore.write('authToken', token);
+
+      return token;
+    }
+
+    return '';
+  } catch (e) {
+    throw e;
+  }
+}
+
+Future<Map<String, String>> _getHeaders([String token = '']) async {
+  try {
+    if (token.isEmpty) {
+      token = await keyValueStore.read('authToken');
+    }
   } catch (e) {
     token = '';
   }
@@ -58,12 +121,4 @@ Future<Map<String, String>> _getHeaders() async {
     'Content-Type': 'application/json; charset=UTF-8',
     'Authorization': 'Bearer $token'
   };
-}
-
-T fromJson<T, K>(dynamic json) {
-  return json;
-}
-
-T toJson<T, K>(dynamic object) {
-  return object;
 }
