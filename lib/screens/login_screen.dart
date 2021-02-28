@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:wirebo/utils/constants.dart';
+import 'package:wirebo/services/key_service.dart';
 import 'package:wirebo/extensions/string_extensions.dart';
 import 'package:wirebo/services/auth_service.dart' as auth;
 import 'package:wirebo/storage/keyvalue_store.dart' as keyValueStore;
@@ -175,6 +176,7 @@ class _LoginScreenState extends State<LoginScreen> {
           if (result != okMessage) {
             _showMaterialDialog(result);
           } else {
+            await setupKeyPair();
             Navigator.pushNamed(context, '/home');
           }
         });

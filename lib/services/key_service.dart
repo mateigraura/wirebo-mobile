@@ -10,6 +10,7 @@ Future setupKeyPair() async {
       final kp = await generateKeyPair();
 
       await writePrivateKey(kp.privateKey.toBase64());
+      await writeIsKeyPairSetup();
 
       final pkStored = await sendPublicKey(kp.publicKey.toBase64());
       if (!pkStored) {
