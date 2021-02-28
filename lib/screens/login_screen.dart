@@ -115,7 +115,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   _forgotPswLabel() {
     return GestureDetector(
-      onTap: () {},
+      onTap: () async {
+        String res = await auth.getId();
+        _showMaterialDialog(res);
+      },
       child: Container(
         alignment: Alignment.centerRight,
         margin: EdgeInsets.only(top: 25, right: 5),

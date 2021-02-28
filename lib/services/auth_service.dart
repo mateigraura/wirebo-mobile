@@ -32,3 +32,13 @@ Future<String> register(Map<String, String> payload) async {
     return genericErrMessage;
   }
 }
+
+Future<String> getId() async {
+  try {
+    HttpResponse response = await doGet('p/rooms');
+
+    return response.payload;
+  } catch (e) {
+    return e.toString();
+  }
+}

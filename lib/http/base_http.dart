@@ -20,8 +20,8 @@ enum RequestType { Get, Post }
 Future<HttpResponse> doGet(String endpoint) async {
   try {
     final url = '${apiUrl()}/$endpoint';
-
-    final response = await http.get(url);
+    final headers = await _getHeaders();
+    final response = await http.get(url, headers: headers);
 
     final payload = jsonDecode(response.body);
 
@@ -69,7 +69,7 @@ Future<HttpResponse> _retryRequest(String url, type, {dynamic body}) async {
 
     dynamic response;
     if (type == RequestType.Get) {
-      response = await http.get(url);
+      response = await http.get(url, headers: headers);
     }
 
     if (type == RequestType.Post) {
@@ -90,8 +90,12 @@ Future<HttpResponse> _retryRequest(String url, type, {dynamic body}) async {
 
 Future<String> _refreshToken() async {
   try {
-    final response = await http.post('${apiUrl()}/refresh',
-        body: <String, String>{'token': await keyValueStore.read('authToken')});
+    final url = '${apiUrl()}/auth/refresh';
+    final headers = await _getHeaders();
+    final expiredJwt = await keyValueStore.read('authToken');
+    final encodedBody = jsonEncode(<String, String>{'token': expiredJwt});
+
+    final response = await http.post(url, headers: headers, body: encodedBody);
 
     final payload = jsonDecode(response.body);
 
