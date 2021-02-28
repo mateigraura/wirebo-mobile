@@ -5,7 +5,7 @@ import 'package:wirebo/storage/keyvalue_store.dart' as keyValueStore;
 Future<String> login(String email, String password) async {
   try {
     HttpResponse response = await doPost(
-        <String, String>{'email': email, 'password': password}, 'login');
+        <String, String>{'email': email, 'password': password}, 'auth/login');
 
     if (!response.ok) {
       return response.payload['message'];
@@ -21,7 +21,7 @@ Future<String> login(String email, String password) async {
 
 Future<String> register(Map<String, String> payload) async {
   try {
-    HttpResponse response = await doPost(payload, 'register');
+    HttpResponse response = await doPost(payload, 'auth/register');
 
     if (!response.ok) {
       return response.payload['message'];
@@ -30,5 +30,15 @@ Future<String> register(Map<String, String> payload) async {
     return okMessage;
   } catch (e) {
     return genericErrMessage;
+  }
+}
+
+Future<String> getId() async {
+  try {
+    HttpResponse response = await doGet('p/rooms');
+
+    return response.payload;
+  } catch (e) {
+    return e.toString();
   }
 }
