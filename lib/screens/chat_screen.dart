@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:wirebo/models/message.dart';
 import 'package:wirebo/models/user.dart';
+import 'package:wirebo/style/colors.dart';
+import 'package:wirebo/models/message.dart';
 import 'package:wirebo/services/message_service.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -16,49 +17,45 @@ class _ChatScreenState extends State<ChatScreen> {
   _messageBubble(Message message, bool isMe) {
     final Container msg = Container(
       margin: isMe
-          ? EdgeInsets.only(
-              top: 8.0,
-              bottom: 8.0,
-              left: 80.0,
-            )
-          : EdgeInsets.only(
-              top: 8.0,
-              bottom: 8.0,
-            ),
+          ? EdgeInsets.only(top: 8.0, bottom: 8.0, left: 80.0, right: 8.0)
+          : EdgeInsets.only(top: 8.0, bottom: 8.0, left: 8.0),
       padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 15.0),
       width: MediaQuery.of(context).size.width * 0.75,
       decoration: BoxDecoration(
-        color: Theme.of(context).accentColor,
-        borderRadius: isMe
-            ? BorderRadius.only(
-                topLeft: Radius.circular(15.0),
-                bottomLeft: Radius.circular(15.0),
-              )
-            : BorderRadius.only(
-                topRight: Radius.circular(15.0),
-                bottomRight: Radius.circular(15.0),
-              ),
+        color: isMe ? chatBubbleMe : chatBubbleFriend,
+        borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(15.0),
+            bottomLeft: isMe ? Radius.circular(15.0) : Radius.zero,
+            topRight: Radius.circular(15.0),
+            bottomRight: isMe ? Radius.zero : Radius.circular(15.0)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            message.time,
-            style: TextStyle(
-              color: Colors.blueGrey,
-              fontSize: 12.0,
-              fontWeight: FontWeight.w600,
+          GestureDetector(
+            onTap: () {},
+            child: SelectableText(
+              message.text,
+              style: TextStyle(
+                color: appWhite,
+                fontSize: 14.0,
+                fontWeight: FontWeight.w400,
+              ),
             ),
           ),
-          SizedBox(height: 8.0),
-          Text(
-            message.text,
-            style: TextStyle(
-              color: Colors.blueGrey,
-              fontSize: 16.0,
-              fontWeight: FontWeight.w400,
-            ),
-          ),
+          Align(
+              alignment: Alignment.bottomRight,
+              child: Container(
+                margin: EdgeInsets.only(top: 8.0),
+                child: Text(
+                  message.time,
+                  style: TextStyle(
+                    color: isMe ? chatBubbleTimeMe : chatLighGrey,
+                    fontSize: 10.0,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              )),
         ],
       ),
     );
@@ -72,31 +69,41 @@ class _ChatScreenState extends State<ChatScreen> {
 
   _messageInput() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8.0),
-      height: 70.0,
-      color: Colors.white,
+      height: 50.0,
+      color: Theme.of(context).primaryColor,
       child: Row(
         children: <Widget>[
-          IconButton(
-            icon: Icon(Icons.photo),
-            iconSize: 25.0,
+          Material(
             color: Theme.of(context).primaryColor,
-            onPressed: () {},
+            child: IconButton(
+              icon: Icon(Icons.photo),
+              iconSize: 28.0,
+              color: chatLighGrey,
+              onPressed: () {},
+            ),
           ),
           Expanded(
             child: TextField(
               textCapitalization: TextCapitalization.sentences,
+              textInputAction: TextInputAction.newline,
+              keyboardType: TextInputType.multiline,
+              minLines: 1,
+              maxLines: 5,
               onChanged: (value) {},
               decoration: InputDecoration.collapsed(
-                hintText: 'Message...',
-              ),
+                  hintText: 'Message',
+                  hintStyle: TextStyle(color: chatBubbleFriend)),
+              style: TextStyle(color: appWhite),
             ),
           ),
-          IconButton(
-            icon: Icon(Icons.send),
-            iconSize: 25.0,
+          Material(
             color: Theme.of(context).primaryColor,
-            onPressed: () {},
+            child: IconButton(
+              icon: Icon(Icons.attach_file),
+              iconSize: 28.0,
+              color: chatLighGrey,
+              onPressed: () {},
+            ),
           ),
         ],
       ),
@@ -106,20 +113,18 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor,
+      backgroundColor: chatBackground,
       appBar: AppBar(
         title: Text(
           widget.user.name,
           style: TextStyle(
-            fontSize: 20.0,
-            fontWeight: FontWeight.bold,
+            fontSize: 18.0,
           ),
         ),
-        elevation: 0.0,
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.more_horiz),
-            iconSize: 30.0,
+            iconSize: 25.0,
             color: Colors.white,
             onPressed: () {},
           ),
@@ -131,18 +136,7 @@ class _ChatScreenState extends State<ChatScreen> {
           children: <Widget>[
             Expanded(
               child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30.0),
-                    topRight: Radius.circular(30.0),
-                  ),
-                ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30.0),
-                    topRight: Radius.circular(30.0),
-                  ),
                   child: ListView.builder(
                     reverse: true,
                     padding: EdgeInsets.only(top: 15.0),

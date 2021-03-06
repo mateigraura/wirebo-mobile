@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:wirebo/models/message.dart';
+import 'package:wirebo/services/message_service.dart';
 import 'package:wirebo/screens/menu_screen.dart';
-import 'package:wirebo/widgets/favorite_contacts.dart';
-import 'package:wirebo/widgets/chat_list.dart';
+import 'package:wirebo/screens/chat_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -12,16 +13,15 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor,
+      // backgroundColor: Theme.of(context).primaryColor,
       appBar: AppBar(
         title: Text(
           'Wirebo',
           style: TextStyle(
-            fontSize: 20.0,
+            fontSize: 18.0,
             fontWeight: FontWeight.bold,
           ),
         ),
-        elevation: 0.0,
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.search),
@@ -34,27 +34,54 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       drawer: MenuScreen(),
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).accentColor,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30.0),
-                  topRight: Radius.circular(30.0),
+      body: ListView.separated(
+          itemBuilder: (ctx, index) {
+            final Message chat = chats[index];
+            return ListTile(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ChatScreen(
+                    user: chat.user,
+                  ),
                 ),
               ),
-              child: Column(
-                children: <Widget>[
-                  FavoriteContacts(),
-                  ChatList(),
-                ],
+              leading: CircleAvatar(
+                radius: 28,
+                backgroundImage:
+                    AssetImage("./assets/images/default-avatar.png"),
               ),
-            ),
+              title: Text(
+                chat.user.name,
+                style: TextStyle(
+                  color: Color(0xFFE9EEF4),
+                  fontSize: 15,
+                ),
+              ),
+              subtitle: Text(chat.text,
+                  style: TextStyle(fontSize: 13, color: Color(0xFF737F8B)),
+                  overflow: TextOverflow.ellipsis),
+              trailing: Text("21:04",
+                  style: TextStyle(fontSize: 12, color: Color(0xFF737F8B))),
+            );
+          },
+          separatorBuilder: (ctx, i) {
+            return Divider(
+              color: Colors.black,
+              thickness: 0.5,
+              endIndent: 0,
+              height: 10,
+              indent: 80,
+            );
+          },
+          itemCount: chats.length),
+      floatingActionButton: FloatingActionButton(
+          child: Icon(
+            Icons.create,
+            color: Colors.white,
           ),
-        ],
-      ),
+          backgroundColor: Color(0xFF65a9e0),
+          onPressed: () {}),
     );
   }
 }

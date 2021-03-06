@@ -13,11 +13,14 @@ class _MenuScreenState extends State<MenuScreen> {
         children: <Widget>[
           UserAccountsDrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.grey,
+                color: Theme.of(context).primaryColor,
               ),
-              accountName: Text('User me'),
+              accountName: Text(
+                'User me',
+                style: TextStyle(fontSize: 16),
+              ),
               currentAccountPicture: CircleAvatar(
-                backgroundImage: AssetImage('assets/images/default-avatar.jpg'),
+                backgroundImage: AssetImage('assets/images/default-avatar.png'),
               ),
               accountEmail: Text('')),
           DrawerListTile(
@@ -35,7 +38,12 @@ class _MenuScreenState extends State<MenuScreen> {
             title: 'Settings',
             onTilePressed: () {},
           ),
-          Divider(),
+          Divider(
+              color: Colors.black,
+              thickness: 0.5,
+              endIndent: 0,
+              height: 10,
+              indent: 60),
           DrawerListTile(
             icon: Icons.person_add,
             title: 'Invite Friends',
@@ -59,12 +67,16 @@ class DrawerListTile extends StatelessWidget {
     return ListTile(
       onTap: onTilePressed,
       dense: true,
-      leading: Icon(icon),
+      leading: Icon(
+        icon,
+        color: Color(0xFF737F8B),
+      ),
       title: Text(
         title,
         style: TextStyle(
-          fontSize: 16,
-        ),
+            fontSize: 14,
+            fontWeight: FontWeight.normal,
+            color: Color(0xFFE9EEF4)),
       ),
     );
   }
